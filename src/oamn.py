@@ -307,7 +307,101 @@ class OAMN:
             J[i, j] += self.J_ij(i, j, XiM, eta)
         return J
 
+    def EnergyFunction(self, C: np.ndarray, eta: np.ndarray, eps: float):
+        """
+        Calculates the Lyuapunov energy function for given input pattern and
+        coupling strength matrix
+
+        Parameters
+        ----------
+        C : np.ndarray
+            Coupling strength matrix
+        eta : np.ndarray
+            Input pattern
+        eps : float
+            Strength of the second Fourier mode
+        Returns
+        -------
+        float value of the Lyapunov energy
+        """
+        n = len(eta)
+        eta = eta[np.newaxis]
+        return -(eta @ C @ eta.T)/2 - (n*eps)/4
+
+    def dtheta(self, theta: np.ndarray, C:np.ndarray, eps: float):
+        """
+        Calculates the derivative of phase vector of the oscillator system
+
+        Parameters
+        ----------
+        theta : np.ndarray
+            (n, ) array of initial phases
+        C : np.ndarray
+            (n, n) array of coupling strengths between oscillators
+        eps : float
+            Strength of the second Fourier mode
+
+        Returns
+        -------
+        (n, ) array of the derivative vector
+        """
+        n = len(theta)
+        dth = np.zeros(n)
+        for i in range(n):
+            dthi = 0
+            for j in range(n):
+                dthi += C[i, j]*np.sin(theta[j]-theta[i]) + \
+                (eps/n)*np.sin((theta[j]-theta[i])*2)
+            dth[i] += dthi
+        return dth
+
+    def rnd_theta(self):
+        """
+        Generates a random array of theta_i (between 0 and 2pi), used for solving the ODEs
+
+        Returns
+        -------
+        (n, ) array of theta values
+        """
+        n = self.n
+        th = np.random.uniform(size=(n,))*(2*np.pi)
+        return th
+
+    def EulerSolver(
+        self,
+        th0: np.ndarray, C: np.ndarray, dt: float, T: int, eps: float
+    ):
+        """
+        Numerically integrates the ODE for n-coupled oscillators using Euler
+        method
+
+        Parameters
+        ----------
+        th0 : np.ndarray
+            (n, ) array of the initial phase vector
+        C : np.ndarray
+            (n, n) array of the couping strengths matrix
+        dt : float
+            Time interval
+        T : int
+            Number of time steps to integrate
+        eps : float
+            Strength of the second Fourier mode
+
+        Returns
+        -------
+        (T+1, n) array of the time evolved phase vectors
+        """
+        n = len(th0)
+        thetas = np.zeros((T+1, n))
+        thetas[0] = th0
+        for t in range(T):
+            th_ = thetas[t]
+            thetas[t+1] = th_ + dt*self.dtheta(th_, C, eps)
+        return thetas
+
 class OAMNStabilityAnalysis:
+
     """
     Class for conducting stability analysis of OAMNs
 
