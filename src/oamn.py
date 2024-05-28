@@ -80,7 +80,7 @@ class OAMN:
 
     def int_rep(self, pattern: np.ndarray):
         """
-        Calculates the integer representation of a binary pattern.
+        Calculates the integer representation of a binary pattern
 
         Parameters
         ----------
@@ -92,6 +92,22 @@ class OAMN:
         int value of the integer representation
         """
         return int("".join([str(_) for _ in (pattern+1)//2]), 2)
+
+    def bin_rep(self, intrep: int, n: int):
+        """
+        Calculates the binary pattern using integer representation
+
+        Parameters
+        ----------
+        intrep : int
+            The integer representation of the pattern
+        n : int
+            Length of the binary pattern
+        Returns
+        -------
+        np.ndarray of the binary pattern
+        """
+        return [(2*int(_))-1 for _ in (("{0:b}".format(intrep)).zfill(n))]
 
     def nonmem_pattern(self):
         """
@@ -465,8 +481,6 @@ class OAMN:
         for i in range(n):
             for j in range(n):
                 dth = np.round((theta[j] - theta[i])/np.pi)
-                print(theta[j], theta[i])
-                print(dth)
                 if dth == 0:
                     eta[j] = eta[i]
                 elif (dth != 0) and dth.is_integer():

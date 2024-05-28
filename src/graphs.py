@@ -20,6 +20,10 @@ class GSET:
         The GSet definition as a string
     A : np.ndarray
         The adjaceny matrix of the graph
+    N : int
+        Number of vertices in the graph
+    E : int
+        Number of edges in the graph
     """
 
     def __init__(self, loc: str):
@@ -34,6 +38,8 @@ class GSET:
         with open(loc, encoding='utf-8') as file:
             self.gstr = file.read()
         self.A = None
+        self.N = None
+        self.E = None
 
     def intize(self, lst: list):
         """
@@ -61,7 +67,7 @@ class GSET:
         lines = self.gstr.split("\n")
         N, E = self.intize(lines[0].split())
         edges = lines[1:]
-        assert E == len(edges)
+        assert E == len(edges)-1
         A = np.zeros((N, N))
         for _ in range(E):
             edge = edges[_].split()
@@ -69,6 +75,8 @@ class GSET:
             A[i-1, j-1] = wij
         A = A + A.T
         self.A = A
+        self.N = N
+        self.E = E
         return A
 
 if __name__ == "__main__":
