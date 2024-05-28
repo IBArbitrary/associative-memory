@@ -326,7 +326,7 @@ class OAMN:
         """
         n = len(eta)
         eta = eta[np.newaxis]
-        return -(eta @ C @ eta.T)/2 - (n*eps)/4
+        return (-(eta @ C @ eta.T)/2 - (n*eps)/4)[0, 0]
 
     def dtheta(self, theta: np.ndarray, C:np.ndarray, eps: float):
         """
@@ -399,6 +399,79 @@ class OAMN:
             th_ = thetas[t]
             thetas[t+1] = th_ + dt*self.dtheta(th_, C, eps)
         return thetas
+
+    def ConvEulerSolver(
+        self,
+        th0: np.ndarray, C: np.ndarray,
+        dt: float, eps: float, tol: float, exs: int = 0, sil: bool = False
+    ):
+        """
+        Numerically integrates the ODE for n-coupled oscillators upto
+        convergence using Euler method
+
+        Parameters
+        ----------
+        th0 : np.ndarray
+            (n, ) array of the initial phase vector
+        C : np.ndarray
+            (n, n) array of the couping strengths matrix
+        dt : float
+            Time interval
+        eps : float
+            Strength of the second Fourier mode
+        tol : float
+            Tolerance value which will be considered as convergence
+        exs : int
+            The extra iterations after convergence
+
+        Returns
+        -------
+        (x+1, n) array of the time evolved phase vectors
+        """
+        thetas = [th0]
+        t = 0
+        while True:
+            th_ = thetas[t]
+            th = th_ + dt*self.dtheta(th_, C, eps)
+            thetas.append(th)
+            t += 1
+            if np.mean(np.abs(th - th_)) < tol:
+                break
+        tc = t
+        for _ in range(exs):
+            th_ = thetas[tc]
+            th = th_ + dt*self.dtheta(th_, C, eps)
+            thetas.append(th)
+            tc += 1
+        if not sil:
+            print(f'Converged in {t} iterations.')
+        return thetas
+
+    def constr_pattern(self, theta: np.ndarray):
+        """
+        Constructs a binary pattern given the phase vector
+
+        Parameters
+        ----------
+        theta : np.ndarray
+            (n, ) array of phase vector
+
+        Returns
+        -------
+        (n, ) array of binary pattern
+        """
+        n = len(theta)
+        eta = np.ones(n, dtype='int')
+        for i in range(n):
+            for j in range(n):
+                dth = np.round((theta[j] - theta[i])/np.pi)
+                print(theta[j], theta[i])
+                print(dth)
+                if dth == 0:
+                    eta[j] = eta[i]
+                elif (dth != 0) and dth.is_integer():
+                    eta[j] = -1*eta[i]
+        return eta
 
 class OAMNStabilityAnalysis:
 
