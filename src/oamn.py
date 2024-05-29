@@ -447,6 +447,8 @@ class OAMN:
         thetas = [th0]
         t = 0
         while True:
+            if not sil:
+                print(f"Iteration {str(t).zfill(3)}", end='\r')
             th_ = thetas[t]
             th = th_ + dt*self.dtheta(th_, C, eps)
             thetas.append(th)

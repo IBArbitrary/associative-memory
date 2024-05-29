@@ -109,13 +109,13 @@ class MaxCutProblem:
         for _ in range_t(self.n_sample):
             th_ = self.o.rnd_theta()
             mc_ = self.solver(
-                th_, self.G, self.dt, self.eps, self.t_, exs = 10, sil = True
+                th_, -self.G, self.dt, self.eps, self.t_, exs = 10, sil = True
             )
             et_ = self.o.construct_pattern(mc_[-1])
-            en_ = self.o.EnergyFunction(self.G, et_, self.eps)
+            en_ = self.o.EnergyFunction(-self.G, et_, self.eps)
             self.etas.append(et_)
             self.engs.append(en_)
-        self.emax = max(set(self.engs))
+        self.emax = min(set(self.engs))
         cuts = []
         for _ in range(self.n_sample):
             en = self.engs[_]
