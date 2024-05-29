@@ -1,2 +1,2 @@
-# *O*scillatory *A*ssociative *M*emory *N*etwork (OAMN)
+# Oscillatory Associative Memory Network (OAMN)
 ![](cover.png?raw=true)
