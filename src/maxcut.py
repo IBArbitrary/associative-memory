@@ -44,6 +44,8 @@ class MaxCutProblem:
         List of solutions as binary patterns
     vcuts : list
         List of solutions as vertices subsets
+    mctraj : np.ndarray
+        The final converging solution trajectory
     """
 
     PBAR = True
@@ -70,6 +72,7 @@ class MaxCutProblem:
         self.emax = None
         self.cuts = None
         self.vcuts = []
+        self.mctraj = None
 
     def system(self, eps: float, dt: float, T: float, n_sample: float):
         """
@@ -92,10 +95,10 @@ class MaxCutProblem:
         self.n_sample = n_sample
         self.o = OAMN(self.n, 3, eps, init = False)
         if T >= 1:
-            self.solver = self.o.EulerSolver
+            self.solver = self.o.euler_solver
             T = int(T)
         elif 0 < T < 1:
-            self.solver = self.o.ConvEulerSolver
+            self.solver = self.o.conv_euler_solver
         self.t_ = T
 
     def solve(self):
@@ -109,10 +112,11 @@ class MaxCutProblem:
         for _ in range_t(self.n_sample):
             th_ = self.o.rnd_theta()
             mc_ = self.solver(
-                th_, -self.G, self.dt, self.eps, self.t_, exs = 10, sil = True
+                th_, -self.G, self.dt, self.eps, self.t_, exs = 0, sil = True
             )
+            self.mctraj = mc_
             et_ = self.o.construct_pattern(mc_[-1])
-            en_ = self.o.EnergyFunction(-self.G, et_, self.eps)
+            en_ = self.o.energy_function(-self.G, et_, self.eps)
             self.etas.append(et_)
             self.engs.append(en_)
         self.emax = min(set(self.engs))

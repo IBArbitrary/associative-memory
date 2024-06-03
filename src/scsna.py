@@ -168,7 +168,7 @@ class SCSNA:
         -------
         float value of cos(phi)
         """
-        del p, args
+        del args
         if alt:
             return self.x_alt(x1, x2, p)
         return x1/np.sqrt(x1**2 + x2**2)
@@ -193,7 +193,7 @@ class SCSNA:
         -------
         float value of sin(phi)
         """
-        del p, args
+        del args
         if alt:
             return self.y_alt(x1, x2, p)
         return x2/np.sqrt(x1**2 + x2**2)
@@ -396,9 +396,9 @@ class SCSNA:
         """
         p = self.params
         def kern(x1, x2, p, alt):
-            return self.csikern(x1, x2, p, 'c', 1, alt=alt)
-        return ((1-p.L)/np.sqrt(p.alpha)) * \
-                (self.gaussian_average(kern, p, alt=alt)[0])
+            return ((1-p.L)/np.sqrt(p.alpha)) * \
+                self.csikern(x1, x2, p, 'c', 1, alt=alt)
+        return self.gaussian_average(kern, p, alt=alt)
 
     def c2(self, alt: bool = False) -> float:
         """
@@ -415,9 +415,9 @@ class SCSNA:
         """
         p = self.params
         def kern(x1, x2, p, alt):
-            return self.csikern(x1, x2, p, 'c', 2, alt=alt)
-        return ((1-p.L)/np.sqrt(p.alpha)) * \
-                (self.gaussian_average(kern, p, alt=alt)[0])
+            return ((1-p.L)/np.sqrt(p.alpha)) * \
+                self.csikern(x1, x2, p, 'c', 2, alt=alt)
+        return self.gaussian_average(kern, p, alt=alt)
 
     def s1(self, alt: bool = False) -> float:
         """
@@ -434,9 +434,9 @@ class SCSNA:
         """
         p = self.params
         def kern(x1, x2, p, alt):
-            return self.csikern(x1, x2, p, 's', 1, alt=alt)
-        return ((1-p.L)/np.sqrt(p.alpha)) * \
-                (self.gaussian_average(kern, p, alt=alt)[0])
+            return ((1-p.L)/np.sqrt(p.alpha)) * \
+                self.csikern(x1, x2, p, 's', 1, alt=alt)
+        return self.gaussian_average(kern, p, alt=alt)
 
     def s2(self, alt: bool = False) -> float:
         """
@@ -453,9 +453,9 @@ class SCSNA:
         """
         p = self.params
         def kern(x1, x2, p, alt):
-            return self.csikern(x1, x2, p, 's', 2, alt=alt)
-        return ((1-p.L)/np.sqrt(p.alpha)) * \
-                (self.gaussian_average(kern, p, alt=alt)[0])
+            return ((1-p.L)/np.sqrt(p.alpha)) * \
+                self.csikern(x1, x2, p, 's', 2, alt=alt)
+        return  self.gaussian_average(kern, p, alt=alt)
 
     def equilibrium_cond(
             self, phi: float, x1: float, x2: float, p: Params
