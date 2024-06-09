@@ -299,9 +299,9 @@ class OAMN:
                     jij -= xi_mat[mu, i]*xi_mat[mu, k]*eta[i]*eta[k]
         return jij/n
 
-    def jacobian(self, eta: np.ndarray):
+    def jacobian_(self, eta: np.ndarray):
         """
-        Generates the jacobian* for stability analysis
+        Generates the jacobian* for stability analysis (legacy)
 
         Parameters
         ----------
@@ -319,8 +319,31 @@ class OAMN:
         xi_mat = self.xi_mat
         for _ in range(n**2):
             i = _ // n
-            j = _  % n
+            j = _ % n
             J[i, j] += self.J_ij(i, j, xi_mat, eta)
+        return J
+
+    def jacobian(self, eta: np.ndarray):
+        """
+        Generates the jacobian* for stability analysis (legacy)
+
+        Parameters
+        ----------
+        eta : np.ndarray
+            Input pattern
+
+        Returns
+        -------
+        jacobian matrix as a (n, n) numpy array
+        """
+        n = self.n
+        if self.xi_mat is None:
+            self.init_patterns()
+        xi_mat = self.xi_mat
+        M = xi_mat * eta
+        J = M.T @ M
+        J -= np.diag(np.sum(J, axis=0))
+        J = J/n
         return J
 
     def energy_function(self, C: np.ndarray, eta: np.ndarray, eps: float):
